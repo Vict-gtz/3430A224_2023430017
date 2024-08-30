@@ -20,6 +20,6 @@ int main() {
     std::cout << "// Nombre: " << persona.nombre << std::endl;
     std::cout << "// Edad: " << persona.edad << " años" << std::endl;
     std::cout << "// Altura: " << persona.altura << "m." << std::endl;
-    
+
     return 0;
 }
