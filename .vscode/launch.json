@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": false,
-      "cwd": "/home/vict/Desktop/laboratorio_0",
-      "program": "/home/vict/Desktop/laboratorio_0/build/Debug/outDebug",
+      "cwd": "/home/vict/3430A224_2023430017",
+      "program": "/home/vict/3430A224_2023430017/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [
