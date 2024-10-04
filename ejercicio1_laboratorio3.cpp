@@ -3,7 +3,17 @@
 
 using namespace std;
 
+void agregar_valor(stack<int> stack) {
+    int valor_usuario;
+    cout << "\n[El valor a agregar será...: ]" << endl;
+
+    cin >> valor_usuario; // Lee el valor para hacer push
+
+    stack.push(valor_usuario);
+}
+
 void menu() {
+    stack<int> stack
     int respuesta = 0;
     // Opciones del menú
     while (true) {
@@ -23,15 +33,15 @@ void menu() {
         //caso de respuesta correcta
         switch (respuesta) {
             case 1:{
-                agregar_valor();
+                agregar_valor(stack);
                 break;
             }
             case 2: {
-                eliminar_valor();
+                eliminar_valor(stack);
                 break;
             }
             case 3: {
-                mostrar_valores();
+                mostrar_valores(stack);
                 break;
             }
             case 4: {// Fin programa
