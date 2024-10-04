@@ -3,16 +3,25 @@
 
 using namespace std;
 
-void agregar_valor(stack<int> stack) {
+void agregar_valor(stack<int> stack, int maximo_cantidad) {
     int valor_usuario;
-    cout << "\n[El valor a agregar será...: ]" << endl;
 
-    cin >> valor_usuario; // Lee el valor para hacer push
+    if (stack.size() < maximo_cantidad) {
+      cout << "\n[El valor a agregar será...: ]" << endl;
+      cin >> valor_usuario; // Lee el valor para hacer push
 
-    stack.push(valor_usuario);
+      stack.push(valor_usuario);
+      cout << "\nSe ha agregado el valor." << endl;
+    } else {
+      cout << "\nLa pila está llena." << endl;
+    }
 }
 
 void menu() {
+    int maximo_cantidad;
+    cout << "\n[Cantidad máxima de valores de pila: ]" << endl;
+    cin >> maximo_cantidad;
+
     stack<int> stack
     int respuesta = 0;
     // Opciones del menú
@@ -33,15 +42,15 @@ void menu() {
         //caso de respuesta correcta
         switch (respuesta) {
             case 1:{
-                agregar_valor(stack);
+                agregar_valor(stack, maximo_cantidad);
                 break;
             }
             case 2: {
-                eliminar_valor(stack);
+                eliminar_valor(stack, maximo_cantidad);
                 break;
             }
             case 3: {
-                mostrar_valores(stack);
+                mostrar_valores(stack, maximo_cantidad);
                 break;
             }
             case 4: {// Fin programa
