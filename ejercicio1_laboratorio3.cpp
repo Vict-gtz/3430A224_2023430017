@@ -46,7 +46,8 @@ void menu() {
                 break;
             }
             case 2: {
-                eliminar_valor(stack, maximo_cantidad);
+                stack.pop();
+                cout << "Se ha eliminado el primer elemento de la cola" << endl;
                 break;
             }
             case 3: {
