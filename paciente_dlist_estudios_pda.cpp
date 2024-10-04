@@ -355,6 +355,66 @@ void organizar_prioridad() {
     cout << "---------Las prioridades de los pacientes han sido reorganizadas y ordenadas.---------";
 }
 
+void agregar_paciente() {
+    std::queue<pacientes> cola_pacientes;
+    pacientes nuevo_paciente;
+
+    // Obtener datos del usuario
+    cout << "Ingrese el nombre del paciente: ";
+    cin >> nuevo_paciente.nombre;
+    
+    cout << "Ingrese el apellido del paciente: ";
+    cin >> nuevo_paciente.apellido;
+    
+    cout << "Ingrese la edad del paciente: ";
+    cin >> nuevo_paciente.edad;
+
+    cout << "Ingrese el IMC del paciente: ";
+    cin >> nuevo_paciente.imc;
+
+    cout << "Ingrese el A1C del paciente: ";
+    cin >> nuevo_paciente.a1c;
+
+    // La prioridad es automáticamente 0
+    nuevo_paciente.prioridad = 0;
+
+    // Abrir el archivo para leer la cantidad de líneas y determinar el número de lista
+    std::ifstream csvFile("pacientes.csv");
+    std::string line;
+    int contador_lineas = 0;
+
+    // Contar líneas en el archivo (pacientes actuales)
+    while (getline(csvFile, line)) {
+        contador_lineas++;
+    }
+    csvFile.close();
+
+    // El nuevo número de lista es el número de pacientes actuales (líneas) más 1
+    nuevo_paciente.numero_lista = contador_lineas;
+
+    // Insertar el nuevo paciente en la cola
+    cola_pacientes.push(nuevo_paciente);
+
+    // Escribir el nuevo paciente en el archivo CSV
+    std::ofstream csvFileOut("pacientes.csv", std::ios_base::app); // Append al archivo
+
+    while (!cola_pacientes.empty()) {
+        pacientes p = cola_pacientes.front();
+        cola_pacientes.pop(); // Eliminar de la cola tras procesar
+
+        csvFileOut << p.numero_lista << "," 
+                   << p.prioridad << ","
+                   << p.nombre << ","
+                   << p.apellido << ","
+                   << p.edad << ","
+                   << p.imc << ","
+                   << p.a1c << "\n";
+    }
+
+    csvFileOut.close();
+
+    cout << "------------[Paciente agregado exitosamente]------------\n";
+}
 
 void menu() {
     int respuesta = 0;
@@ -378,8 +438,10 @@ void menu() {
 
         //caso de respuesta correcta
         switch (respuesta) {
-            case 1:
+            case 1:{
+                agregar_paciente();//cola
                 break;
+            }
             case 2: {//prioridad
                 organizar_prioridad();
                 break;
