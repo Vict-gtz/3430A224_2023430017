@@ -2,6 +2,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <cmath> // Para abs()
 
 using namespace std;
 
@@ -72,13 +73,12 @@ void read_file() {
 }
 
 // buscar el paciente más cercano a A1C ingresado
-pacientes buscar_paciente(double valpr_usuario, str opcion_user) {
+pacientes buscar_paciente(double valor_usuario, string opcion_user) {
     //abrir archivo
     std::ifstream csvFile("pacientes.csv"); 
 
     std::string line;
     getline(csvFile, line);
-
 
     pacientes paciente_cercano;
     double diferencia_minima = 1000; // Inicia con un número grande para comparar
@@ -107,12 +107,13 @@ pacientes buscar_paciente(double valpr_usuario, str opcion_user) {
         getline(ss, field, ',');
         paciente.a1c = stod(field); // A1C
 
-        if opcion_user == 'I'{
+        double diferencia = 0;
+        if (opcion_user == "I") {
             // Calcular la diferencia entre el IMC ingresado y el IMC del paciente
-            double diferencia = std::abs(paciente.imc - valor_usuario);
+            diferencia = std::abs(paciente.imc - valor_usuario);
         } else {
             // Calcular la diferencia entre el A1C ingresado y el A1C del paciente
-            double diferencia = std::abs(paciente.a1c - valor_usuario);
+            diferencia = std::abs(paciente.a1c - valor_usuario);
         }
 
         // Actualizar el paciente más cercano si la diferencia es menor
@@ -129,7 +130,7 @@ pacientes buscar_paciente(double valpr_usuario, str opcion_user) {
 int caso_cuatro() {
     double a1c_user; // Permite decimales
     cout << "Ingrese un índice de A1C [0 ≤ x ≤ 12 de preferencia]: ";
-    str imc_opcion = "A"
+    string imc_opcion = "A"; // Falta el punto y coma
 
     while (true) {
         cin >> a1c_user;
@@ -166,7 +167,7 @@ int caso_tres() {
     int imc_user; 
     cout << "Ingrese un índice de IMC [< 50 de preferencia]: ";
     cin >> imc_user;
-    str imc_opcion = "I"
+    string imc_opcion = "I"; // Falta el punto y coma
     // Buscar paciente cercano al IMC ingresado por el usuario
     pacientes paciente_encontrado = buscar_paciente(imc_user, imc_opcion);
 
@@ -211,7 +212,6 @@ void menu() {
             cout << "[Seleccione una opción entre las disponibles (escribir número)]" << endl;
             continue; 
         }
-
 
         //caso de respuesta correcta
         switch (respuesta) {
