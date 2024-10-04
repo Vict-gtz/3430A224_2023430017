@@ -72,7 +72,7 @@ void read_file() {
 }
 
 // buscar el paciente más cercano a A1C ingresado
-pacientes buscar_paciente_por_imc(double imc_usuario) {
+pacientes buscar_paciente(double valpr_usuario, str opcion_user) {
     //abrir archivo
     std::ifstream csvFile("pacientes.csv"); 
 
@@ -107,8 +107,13 @@ pacientes buscar_paciente_por_imc(double imc_usuario) {
         getline(ss, field, ',');
         paciente.a1c = stod(field); // A1C
 
-        // Calcular la diferencia entre el IMC ingresado y el IMC del paciente
-        double diferencia = std::abs(paciente.imc - imc_usuario);
+        if opcion_user == 'I'{
+            // Calcular la diferencia entre el IMC ingresado y el IMC del paciente
+            double diferencia = std::abs(paciente.imc - valor_usuario);
+        } else {
+            // Calcular la diferencia entre el A1C ingresado y el A1C del paciente
+            double diferencia = std::abs(paciente.a1c - valor_usuario);
+        }
 
         // Actualizar el paciente más cercano si la diferencia es menor
         if (diferencia < diferencia_minima) {
@@ -120,61 +125,11 @@ pacientes buscar_paciente_por_imc(double imc_usuario) {
     csvFile.close();
     return paciente_cercano; // Retornar el paciente más cercano encontrado
 }
-
-// buscar el paciente más cercano a A1C ingresado
-pacientes buscar_paciente_por_a1c(double a1c_usuario) {
-    //abrir archivo
-    std::ifstream csvFile("pacientes.csv"); 
-
-    std::string line;
-    getline(csvFile, line);
-
-
-    pacientes paciente_cercano;
-    double diferencia_minima = 20; // Inicia con un número grande para comparar
-
-    while (getline(csvFile, line)) {
-        stringstream ss(line);
-        pacientes paciente;
-        string field;
-
-        getline(ss, field, ',');
-        paciente.numero_lista = stoi(field); // Nº
-
-        getline(ss, field, ',');
-        paciente.prioridad = stoi(field); // Prioridad
-
-        getline(ss, paciente.nombre, ','); // Nombre
-
-        getline(ss, paciente.apellido, ','); // Apellido
-
-        getline(ss, field, ',');
-        paciente.edad = stoi(field); // Edad
-
-        getline(ss, field, ',');
-        paciente.imc = stod(field); // IMC
-
-        getline(ss, field, ',');
-        paciente.a1c = stod(field); // A1C
-
-        // Calcular la diferencia entre el A1C ingresado y el A1C del paciente
-        double diferencia = std::abs(paciente.a1c - a1c_usuario);
-
-        // Actualizar el paciente más cercano si la diferencia es menor
-        if (diferencia < diferencia_minima) {
-            diferencia_minima = diferencia;
-            paciente_cercano = paciente;
-        }
-    }
-
-    csvFile.close();
-    return paciente_cercano; // Retornar el paciente más cercano encontrado
-}
-
 
 int caso_cuatro() {
     double a1c_user; // Permite decimales
-    cout << "Ingrese un índice de A1C [0 ≤ x ≤ 12]: ";
+    cout << "Ingrese un índice de A1C [0 ≤ x ≤ 12 de preferencia]: ";
+    str imc_opcion = "A"
 
     while (true) {
         cin >> a1c_user;
@@ -187,7 +142,7 @@ int caso_cuatro() {
     }
 
     // Buscar paciente cercano al A1C ingresado por el usuario
-    pacientes paciente_encontrado = buscar_paciente_por_a1c(a1c_user);
+    pacientes paciente_encontrado = buscar_paciente(a1c_user, imc_opcion);
 
     // Mostrar los datos del paciente encontrado
     if (paciente_encontrado.numero_lista != 0) {
@@ -209,10 +164,11 @@ int caso_cuatro() {
 
 int caso_tres() {
     int imc_user; 
-    cout << "Ingrese un índice de IMC: ";
+    cout << "Ingrese un índice de IMC [< 50 de preferencia]: ";
     cin >> imc_user;
+    str imc_opcion = "I"
     // Buscar paciente cercano al IMC ingresado por el usuario
-    pacientes paciente_encontrado = buscar_paciente_por_imc(imc_user);
+    pacientes paciente_encontrado = buscar_paciente(imc_user, imc_opcion);
 
     // Mostrar los datos del paciente encontrado
     if (paciente_encontrado.numero_lista != 0) {
@@ -233,7 +189,7 @@ int caso_tres() {
 }
 
 void editing(int num_paciente) {
-    cout << "hola" << endl;
+    cout << "hola" << endl; //abrir otro menù aquì
 }
 
 void menu() {
