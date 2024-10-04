@@ -4,6 +4,7 @@
 #include <string>
 #include <cmath> 
 #include <queue>
+#include <list>
 
 using namespace std;
 
@@ -36,7 +37,7 @@ void read_file() {
     std::string line;
     getline(csvFile, line);
 
-    while (getline(csvFile, line)) {
+    while (getline(csvFile, line)) {//aquì si hay espacios vacìos en el archivo se muere, aviso
         stringstream ss(line);
         pacientes pacientes;
         string field;
@@ -269,7 +270,7 @@ void organizar_prioridad() {
         return;
     }
 
-    std::queue<pacientes> fila; // Cola para almacenar los pacientes actualizados
+    std::list<pacientes> lista_pacientes; // Lista para almacenar los pacientes
     std::string line;
     
     // Leer la cabecera
@@ -300,11 +301,12 @@ void organizar_prioridad() {
         getline(ss, field, ',');
         paciente.a1c = stod(field); // A1C
 
-        // calculo prioridad. Mi idea es que se le de mayor prioridad a las edades avanzadas antes que al peso, pero que tengan una importancia similar-
+        // --------- Cálculo de la prioridad -------------
+        // Mi idea es que se le de mayor prioridad a las edades avanzadas antes que al peso, pero que tengan una importancia similar.
         double prioridad_A = ((paciente.edad * 0.6) + (paciente.imc * 0.4)) * 0.4;
         double prioridad_B = 0;
 
-        // Pero que el a1c sea la parte màs importante para ver la prioridad si es que la tienes en medio u alta, si es baja entonces no importará mucho.
+        // Pero que el a1c sea la parte más importante para ver la prioridad si es que la tienes en medio u alta, si es baja entonces no importará mucho.
         if (paciente.a1c < 5.7) {
             prioridad_B = paciente.a1c * 0.2;
         } else if (paciente.a1c >= 5.7 && paciente.a1c < 6.5) {
@@ -318,21 +320,28 @@ void organizar_prioridad() {
         // Actualizar la prioridad del paciente
         paciente.prioridad = static_cast<int>(round(prioridad_real));
 
-        // Agregar paciente actualizado a la cola
-        fila.push(paciente);
+        // Agregar paciente actualizado a la lista
+        lista_pacientes.push_back(paciente);
     }
 
     csvFile.close(); // Cerrar el archivo de lectura
 
-    // Reescribir el archivo con las prioridades actualizadas
+    // --------- Ordenar la lista de pacientes según la prioridad -------------
+    lista_pacientes.sort([](const pacientes &a, const pacientes &b) {
+        return a.prioridad > b.prioridad; // Orden descendente de prioridad
+    });
+
+    // Reescribir el archivo con los pacientes en orden y actualizando los números de lista
     std::ofstream csvFileOut("pacientes.csv");
     
-    // Header
+    // Escribir la cabecera
     csvFileOut << "Nº,Prioridad,Nombre,Apellido,Edad,IMC,A1C\n";
 
-    // Reescribir los datos actualizados
-    while (!fila.empty()) {
-        pacientes paciente = fila.front();
+    // Actualizar el numero_lista según el nuevo orden y reescribir los datos
+    int nuevo_numero_lista = 1;
+    for (auto &paciente : lista_pacientes) {
+        paciente.numero_lista = nuevo_numero_lista++; // Actualizar número de lista
+
         csvFileOut << paciente.numero_lista << "," 
                    << paciente.prioridad << ","
                    << paciente.nombre << ","
@@ -340,11 +349,10 @@ void organizar_prioridad() {
                    << paciente.edad << ","
                    << paciente.imc << ","
                    << paciente.a1c << "\n";
-        fila.pop(); // Quitar el paciente de la cola
     }
 
     csvFileOut.close();
-    cout << "Las prioridades de los pacientes han sido reorganizadas.\n";
+    cout << "---------Las prioridades de los pacientes han sido reorganizadas y ordenadas.---------";
 }
 
 
@@ -359,7 +367,7 @@ void menu() {
         cout << "4 -> Buscar por A1C." << endl;//eliminar -> pop (cola)
         cout << "5 -> Eliminar todos los datos." << endl;
         cout << "6 -> Mostrar datos." << endl;
-        cout << "7 -> Salir." << endl;
+        cout << "7 -> Salir.\n" << endl;
 
         // Devolverse si está mala la respuesta
         cin >> respuesta;
