@@ -2,7 +2,8 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-#include <cmath> // Para abs()
+#include <cmath> 
+#include <queue>
 
 using namespace std;
 
@@ -129,8 +130,8 @@ pacientes buscar_paciente(double valor_usuario, string opcion_user) {
 
 int caso_cuatro() {
     double a1c_user; // Permite decimales
-    cout << "Ingrese un índice de A1C [0 ≤ x ≤ 12 de preferencia]: ";
-    string imc_opcion = "A"; // Falta el punto y coma
+    cout << "Ingrese un índice de A1C [0 ≤ x ≤ 12]: ";
+    string imc_opcion = "A"; 
 
     while (true) {
         cin >> a1c_user;
@@ -189,8 +190,79 @@ int caso_tres() {
     }
 }
 
-void editing(int num_paciente) {
-    cout << "hola" << endl; //abrir otro menù aquì
+void eliminar_paciente(int num_paciente) {
+    std::ifstream csvFile("pacientes.csv");
+    if (!csvFile) {
+        cerr << "Error al abrir el archivo CSV.\n";
+        return;
+    }
+
+    std::queue<string> fila; // Cola para almacenar las líneas que no se eliminan
+    string line;
+    bool eliminado = false;
+
+    // Leer header
+    getline(csvFile, line);
+    fila.push(line);
+
+    while (getline(csvFile, line)) {
+        stringstream ss(line);
+        string field;
+        int numero_lista;
+
+        // Extraer el número de lista de la línea
+        getline(ss, field, ',');
+        numero_lista = stoi(field);
+
+        // Si el número de lista no coincide con el `num_paciente`, se agrega a la cola
+        if (numero_lista != num_paciente) {
+            fila.push(line);
+        } else {
+            eliminado = true; // Se ha eliminado el paciente
+        }
+    }
+
+    csvFile.close();
+
+    // Reescribir las líneas que quedan en el archivo, sin el paciente eliminado
+    std::ofstream csvFileOut("pacientes.csv");
+    while (!fila.empty()) {
+        csvFileOut << fila.front() << "\n";
+        fila.pop(); // Quitar la línea de la cola
+    }
+    csvFileOut.close();
+
+    if (eliminado) {
+        cout << "[ El paciente con número de lista " << num_paciente << " ha sido eliminado. ]\n";
+    }
+}
+
+void opciones_busqueda(int num_paciente) {
+    int respuesta = 0;
+
+    while (true) {
+        cout << "\n\n\n------------[Opciones paciente]------------" << endl;
+        cout << "1 -> Eliminar paciente" << endl;
+        cout << "2 -> Retroceder." << endl;
+
+        // Devolverse si está mala la respuesta
+        cin >> respuesta;
+        if (respuesta < 1 || respuesta > 2) {
+            cout << "[Seleccione una opción entre las disponibles (escribir número)]" << endl;
+            continue; 
+        }
+
+        //caso de respuesta correcta
+        switch (respuesta) {
+            case 1: {
+                eliminar_paciente(num_paciente);
+                return;
+            }
+            case 2:{
+                return;
+            }
+        }
+    }
 }
 
 void menu() {
@@ -221,12 +293,12 @@ void menu() {
                 break;
             case 3: {//busqueda IMC
                 int num_paciente = caso_tres();
-                editing(num_paciente);
+                opciones_busqueda(num_paciente);
                 break;
             }
             case 4: {//busqueda a1c
                 int num_paciente = caso_cuatro();
-                editing(num_paciente);
+                opciones_busqueda(num_paciente);
                 break;
             }
             case 5: {//reset datos
