@@ -192,10 +192,6 @@ int caso_tres() {
 
 void eliminar_paciente(int num_paciente) {
     std::ifstream csvFile("pacientes.csv");
-    if (!csvFile) {
-        cerr << "Error al abrir el archivo CSV.\n";
-        return;
-    }
 
     std::queue<string> fila; // Cola para almacenar las líneas que no se eliminan
     string line;
@@ -265,15 +261,102 @@ void opciones_busqueda(int num_paciente) {
     }
 }
 
+void organizar_prioridad() {
+    std::ifstream csvFile("pacientes.csv"); 
+
+    if (!csvFile) {
+        cerr << "Error al abrir el archivo CSV.\n";
+        return;
+    }
+
+    std::queue<pacientes> fila; // Cola para almacenar los pacientes actualizados
+    std::string line;
+    
+    // Leer la cabecera
+    getline(csvFile, line);
+    
+    while (getline(csvFile, line)) {
+        stringstream ss(line);
+        pacientes paciente;
+        string field;
+
+        // Leer los campos del paciente desde el archivo CSV
+        getline(ss, field, ',');
+        paciente.numero_lista = stoi(field); // Nº
+
+        getline(ss, field, ',');
+        paciente.prioridad = stoi(field); // Prioridad (original, que vamos a recalcular)
+
+        getline(ss, paciente.nombre, ','); // Nombre
+
+        getline(ss, paciente.apellido, ','); // Apellido
+
+        getline(ss, field, ',');
+        paciente.edad = stoi(field); // Edad
+
+        getline(ss, field, ',');
+        paciente.imc = stod(field); // IMC
+
+        getline(ss, field, ',');
+        paciente.a1c = stod(field); // A1C
+
+        // calculo prioridad. Mi idea es que se le de mayor prioridad a las edades avanzadas antes que al peso, pero que tengan una importancia similar-
+        double prioridad_A = ((paciente.edad * 0.6) + (paciente.imc * 0.4)) * 0.4;
+        double prioridad_B = 0;
+
+        // Pero que el a1c sea la parte màs importante para ver la prioridad si es que la tienes en medio u alta, si es baja entonces no importará mucho.
+        if (paciente.a1c < 5.7) {
+            prioridad_B = paciente.a1c * 0.2;
+        } else if (paciente.a1c >= 5.7 && paciente.a1c < 6.5) {
+            prioridad_B = paciente.a1c * 0.5;
+        } else {
+            prioridad_B = paciente.a1c * 0.6;
+        }
+
+        double prioridad_real = prioridad_A + prioridad_B;
+
+        // Actualizar la prioridad del paciente
+        paciente.prioridad = static_cast<int>(round(prioridad_real));
+
+        // Agregar paciente actualizado a la cola
+        fila.push(paciente);
+    }
+
+    csvFile.close(); // Cerrar el archivo de lectura
+
+    // Reescribir el archivo con las prioridades actualizadas
+    std::ofstream csvFileOut("pacientes.csv");
+    
+    // Header
+    csvFileOut << "Nº,Prioridad,Nombre,Apellido,Edad,IMC,A1C\n";
+
+    // Reescribir los datos actualizados
+    while (!fila.empty()) {
+        pacientes paciente = fila.front();
+        csvFileOut << paciente.numero_lista << "," 
+                   << paciente.prioridad << ","
+                   << paciente.nombre << ","
+                   << paciente.apellido << ","
+                   << paciente.edad << ","
+                   << paciente.imc << ","
+                   << paciente.a1c << "\n";
+        fila.pop(); // Quitar el paciente de la cola
+    }
+
+    csvFileOut.close();
+    cout << "Las prioridades de los pacientes han sido reorganizadas.\n";
+}
+
+
 void menu() {
     int respuesta = 0;
 
     while (true) {
         cout << "\n\n\n------------[Menú]------------" << endl;
         cout << "1 -> Agregar un Paciente." << endl;
-        cout << "2 -> Organizar prioridad." << endl;
+        cout << "2 -> Organizar prioridad." << endl;//lista
         cout << "3 -> Buscar por IMC." << endl;
-        cout << "4 -> Buscar por A1C." << endl;//eliminar o editar por los buscar
+        cout << "4 -> Buscar por A1C." << endl;//eliminar -> pop (cola)
         cout << "5 -> Eliminar todos los datos." << endl;
         cout << "6 -> Mostrar datos." << endl;
         cout << "7 -> Salir." << endl;
@@ -289,8 +372,10 @@ void menu() {
         switch (respuesta) {
             case 1:
                 break;
-            case 2:
+            case 2: {//prioridad
+                organizar_prioridad();
                 break;
+            }
             case 3: {//busqueda IMC
                 int num_paciente = caso_tres();
                 opciones_busqueda(num_paciente);
