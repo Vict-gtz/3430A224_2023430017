@@ -17,6 +17,20 @@ void agregar_valor(stack<int> stack, int maximo_cantidad) {
     }
 }
 
+void mostrar_valores(stack<int> stack) {
+    if (!stack.empty()) {
+        std::stack<int> temp = stack;
+        while (!temp.empty()) {
+          cout << temp.top() << " ";
+          temp.pop();
+        }
+        cout << endl;
+      } else {
+        cout << "\nLa pila estáse encuentra vacía.";
+      }
+      break;
+}
+
 void menu() {
     int maximo_cantidad;
     cout << "\n[Cantidad máxima de valores de pila: ]" << endl;
@@ -51,7 +65,7 @@ void menu() {
                 break;
             }
             case 3: {
-                mostrar_valores(stack, maximo_cantidad);
+                mostrar_valores(stack);
                 break;
             }
             case 4: {// Fin programa
