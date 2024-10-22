@@ -55,6 +55,26 @@ private:
         printPreOrder(node->right); // Recorrer el subarbol derecho
     }
 
+    // En inorden
+    void printInOrder(Node *node) const {
+        if (node == nullptr) {
+            return;
+        }
+        printInOrder(node->left);
+        cout << node->info << " ";
+        printInOrder(node->right);
+    }
+
+    // Y en posorden
+    void printPosOrder(Node *node) const {
+        if (node == nullptr) {
+            return;
+        }
+        printPosOrder(node->left);
+        printPosOrder(node->right);
+        cout << node->info << " ";
+    }
+
 public:
     Arbol() : root(nullptr) {}
 
@@ -63,13 +83,22 @@ public:
         root = insertNode(root, data);
     }
 
-    // Metodo publico para imprimir el arbol en preorden
+    // Metodo publico para imprimir el arbol en preorden, inorden y posorden
     void printPreOrder() const {
         printPreOrder(root);
         cout << endl;
     }
 
-    // Otros metodos publicos y privados (si es necesario)
+    void printInOrder() const {
+        printInOrder(root);
+        cout << endl;
+    }
+
+    void printPosOrder() const {
+        printPosOrder(root);
+        cout << endl;
+    }
+
 };
 
 int main() {
@@ -97,7 +126,7 @@ int main() {
         cout << "\n\n[ ---------- Menu ------------ ]" << endl;
         cout << "1 -> Mostrar arbol en preorden <-" << endl;
         cout << "2 -> Mostrar arbol en inorden <-" << endl;
-        cout << "3 -> Mostrar arbol en postorden <-" << endl;
+        cout << "3 -> Mostrar arbol en posorden <-" << endl;
         cout << "4 -> Elegir elemento a editar <-" << endl;
         cout << "5 -> Finalizar <-" << endl;
 
@@ -119,12 +148,14 @@ int main() {
             case 2: {
                 // Imprimir el arbol en inorden
                 cout << "++ Recorrido en inorden: " << endl;
+                arbol.printInOrder();
                 cin >> empt;
                 break;
             }
             case 3: {
-                // Imprimir el arbol en postorden
-                cout << "++ Recorrido en postorden: " << endl;
+                // Imprimir el arbol en posorden
+                cout << "++ Recorrido en posorden: " << endl;
+                arbol.printPosOrder();
                 cin >> empt;
                 break;
             }
@@ -133,7 +164,7 @@ int main() {
                 break;
             }
             case 5: {
-                cout << "Programa finalizado" << endl;
+                cout << "Programa finalizado" << endl; // Finaliza programa
                 return 0;
             }
         }
