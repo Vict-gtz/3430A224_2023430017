@@ -39,7 +39,7 @@ private:
             node->right = insertNode(node->right, data);
         } else {
             // El dato ya esta en el arbol
-            cout << "El nodo ya se encuentra en el árbol: " << data << endl;
+            cout << "XX El nodo ya se encuentra en el árbol [" << data << "] XX" << endl;
         }
 
         return node;
@@ -127,16 +127,19 @@ int main() {
         cout << "1 -> Mostrar arbol en preorden <-" << endl;
         cout << "2 -> Mostrar arbol en inorden <-" << endl;
         cout << "3 -> Mostrar arbol en posorden <-" << endl;
-        cout << "4 -> Elegir elemento a editar <-" << endl;
-        cout << "5 -> Finalizar <-" << endl;
+        cout << "4 -> Buscar nodo <-" << endl; //eliminar o reemplazar
+        cout << "5 -> Insertar valor al arbol <-" << endl;
+        cout << "6 -> Finalizar <-" << endl;
 
         cout << "\nxx Ingrese una de las opciones entregadas xx : ";
-        if (!(cin >> opcion)) {
-            cin.clear();
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            continue;
-        }
 
+        if (!(cin >> opcion)) { // Booleano, si es true entonces ingresará acá
+            cin.clear(); // Limpia bool
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Limpiar buffer
+            continue;
+        } // (Sin esto el código corría infinitamente)
+
+        // Se realizan opciones dependiendo lo que eligió el usuario
         switch (opcion) {
             case 1: {
                 // Imprimir el arbol en preorden
@@ -163,7 +166,25 @@ int main() {
                 cin >> empt;
                 break;
             }
-            case 5: {
+            case 5: { // Agregar valores al árbol
+            int valor_nuevo = 0;
+            cout << "\n++ Valor nuevo a agregar al arbol: ";
+
+            while (true) {
+                if (cin >> valor_nuevo) { // Valor correcto ingresado
+                    break;
+                } else { // Valor incorrecto: limpia buffer y pregunta otra vez
+                    cin.clear();
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                    cout << "xx Ingrese un valor numérico válido xx: ";
+                }
+            }
+
+            arbol.insert(valor_nuevo); // Agrega el valor al arbol
+            cout << "++ Se ha agregado el valor " << valor_nuevo << " al arbol." << endl; // Entrega aviso de que se agregó valor al arbol
+            break;
+        }
+            case 6: {
                 cout << "Programa finalizado" << endl; // Finaliza programa
                 return 0;
             }
