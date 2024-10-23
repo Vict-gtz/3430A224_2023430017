@@ -163,7 +163,26 @@ int main() {
                 break;
             }
             case 4: {
-                cin >> empt;
+                int trabajando = 0;
+                arbol.printInOrder();
+
+                // Pregunta valor que quiere utilizar
+                cout << "++ Con que valor quieres trabajar? :";
+                while (true) {
+                    if (cin >> trabajando) { // Valor correcto ingresado
+                        break;
+                    } else { // Valor incorrecto: limpia buffer y pregunta otra vez
+                        cin.clear();
+                        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                        cout << "xx Ingrese un valor numérico válido xx: ";
+                    }
+                }
+
+                // Pregunta qué quiere hacer con este valor
+                cout << "++ Que quieres hacer con este valor?\n1 -> Eliminarlo <-\n2 -> Reemplazarlo <-" << endl;
+                while (true) {
+                    
+                }
                 break;
             }
             case 5: { // Agregar valores al árbol
@@ -181,7 +200,6 @@ int main() {
             }
 
             arbol.insert(valor_nuevo); // Agrega el valor al arbol
-            cout << "++ Se ha agregado el valor " << valor_nuevo << " al arbol." << endl; // Entrega aviso de que se agregó valor al arbol
             break;
         }
             case 6: {
