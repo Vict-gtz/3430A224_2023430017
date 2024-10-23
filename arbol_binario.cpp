@@ -170,6 +170,54 @@ public:
     bool search(int data) const {
         return search(root, data);
     }
+
+    // Aqui lo del grafo
+    // Recorrer el arbol en preorden y escribir en el archivo
+    void recorrer(Node* node, ofstream& fp) {
+        if (node != nullptr) {
+            if (node->left != nullptr) {
+                fp << node->info << "->" << node->left->info << ";" << endl;
+            } else {
+                string cadena = "null" + to_string(node->info) + "i";
+                fp << cadena << "[shape=point];" << endl;
+                fp << node->info << "->" << cadena << ";" << endl;
+            }
+
+            if (node->right != nullptr) {
+                fp << node->info << "->" << node->right->info << ";" << endl;
+            } else {
+                string cadena = "null" + to_string(node->info) + "d";
+                fp << cadena << "[shape=point];" << endl;
+                fp << node->info << "->" << cadena << ";" << endl;
+            }
+
+            recorrer(node->left, fp);
+            recorrer(node->right, fp);
+        }
+    }
+
+    // Generar y mostrar la visualizacion del arbol
+    void visualize() {
+        ofstream fp("grafo.txt");
+
+        if (!fp.is_open()) {
+            cerr << "Error al abrir el archivo grafo.txt" << endl;
+            return;
+        }
+
+        fp << "digraph G {" << endl;
+        fp << "node [style=filled fillcolor=yellow];" << endl;
+
+        recorrer(root, fp);
+
+        fp << "}" << endl;
+
+        fp.close();
+
+        // Generar y mostrar la imagen del arbol
+        system("dot -Tpng -o arbol.png grafo.txt");
+        system("eog arbol.png");
+    }
 };
 
 int main() {
@@ -201,6 +249,7 @@ int main() {
         cout << "4 -> Buscar nodo <-" << endl; //eliminar o reemplazar
         cout << "5 -> Insertar valor al arbol <-" << endl;
         cout << "6 -> Finalizar <-" << endl;
+        cout << "7 -> Visualizar arbol <-" << endl;
 
         cout << "\nxx Ingrese una de las opciones entregadas xx : ";
 
@@ -292,6 +341,11 @@ int main() {
             case 6: {
                 cout << "Programa finalizado" << endl; // Finaliza programa
                 return 0;
+            }
+            case 7: {
+                arbol.visualize(); // Grafo
+                cout << "Se ha creado grafo.txt" << endl; // Da aviso
+                break;
             }
         }
     }
