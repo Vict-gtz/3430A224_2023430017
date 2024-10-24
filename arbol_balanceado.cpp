@@ -22,7 +22,7 @@ typedef Nodo *pNodo;
 typedef Nodo *Arbol;
 
 void Insertar(Arbol* a, int dat);
-void Borrar(Arbol* a, int dat);
+void Eliminar(Arbol* a, int dat);
 
 /*
 int Buscar(Arbol a, int dat);//
@@ -75,19 +75,19 @@ void PreOrden(Arbol a, std::ofstream &fp) {
     }
 }
 
-void Borrar(Arbol *a, int dat) {
+void Eliminar(Arbol *a, int dat) {
     if (*a == NULL) {
         return;  // Si el árbol está vacío, no se hace nada
     }
 
     if (dat < (*a)->dato) {
         // Se busca en subarbol izquierdo por tamaño de dato
-        Borrar(&(*a)->izquierdo, dat);
+        Eliminar(&(*a)->izquierdo, dat);
     } else if (dat > (*a)->dato) {
         // Se busca en subarbol derecho por tamaño de dato
-        Borrar(&(*a)->derecho, dat);
+        Eliminar(&(*a)->derecho, dat);
     } else {
-        // Se encontró el nodo a borrar
+        // Se encontró el nodo a Eliminar
         if ((*a)->izquierdo == NULL && (*a)->derecho == NULL) {
             delete *a;  // Se elimina el nodo
             *a = NULL;  
@@ -102,7 +102,7 @@ void Borrar(Arbol *a, int dat) {
         } else {
             pNodo temp = minValueNodo((*a)->derecho); 
             (*a)->dato = temp->dato;  
-            Borrar(&(*a)->derecho, temp->dato);  
+            Eliminar(&(*a)->derecho, temp->dato);  
         }
     }
 }
@@ -345,7 +345,7 @@ void RotaDerechoDerecho(Arbol* a, pNodo nodo) {
 void menu() {
         cout << "\n\n[ ---------- Menu ------------ ]" << endl;
         cout << "1 -> Mostrar arbol <-" << endl;
-        cout << "2 -> Buscar nodo <-" << endl; // Borrar o reescribir
+        cout << "2 -> Buscar nodo <-" << endl; // Eliminar o reescribir
         cout << "3 -> Insertar valor al arbol <-" << endl;
         cout << "4 -> Generar grafo <-" << endl;
         cout << "5 -> Finalizar <-" << endl;
@@ -357,18 +357,13 @@ int main() {
     Arbol arbol = NULL;
 
     // Insertar numeros en el arbol usando el metodo insert
-    Insertar(&arbol, 120);
-    Insertar(&arbol, 87);
-    Insertar(&arbol, 140);
-    Insertar(&arbol, 43);
-    Insertar(&arbol, 99);
-    Insertar(&arbol, 130);
-    Insertar(&arbol, 22);
-    Insertar(&arbol, 65);
-    Insertar(&arbol, 93);
-    Insertar(&arbol, 135);
-    Insertar(&arbol, 56);
-
+    Insertar(&arbol, 60);
+    Insertar(&arbol, 40);
+    Insertar(&arbol, 90);
+    Insertar(&arbol, 75);
+    Insertar(&arbol, 68);
+    Insertar(&arbol, 97);
+    Insertar(&arbol, 45);
 
     // Menu con diversas opciones para el usuario
     while (true) {
@@ -393,16 +388,15 @@ int main() {
                 cin >> empt; 
                 break;
             }
-            // Borrar / Reescribir
+            // Eliminar / Reescribir
             case 2: {
-                /*
                 int trabajando = 0;
                 int opcionn = 0;
-                arbol.printInOrder(); // Muestra el árbol al usuario
+                //arbol.printInOrder(); // Muestra el árbol al usuario
 
                 // Pregunta el valor que quiere utilizar
                 cout << "++ Con que valor quieres trabajar? :";
-                while (true) {
+                /*while (true) {
                     if (cin >> trabajando) {
                         // Verifica si el valor existe en el árbol
                         if (arbol.search(trabajando)) {
@@ -415,10 +409,15 @@ int main() {
                         cin.ignore(numeric_limits<streamsize>::max(), '\n');
                         cout << "xx Ingrese un valor numérico válido xx: ";
                     }
-                }
+                }*/
+                if (!(cin >> trabajando)) { 
+                        cin.clear(); 
+                        cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
+                        continue;
+                    } 
 
                 // Pregunta qué quiere hacer con este valor
-                cout << "\n\n++ Que quieres hacer con este valor?\n1 -> Borrarlo <-\n2 -> Reemplazarlo <-" << endl;
+                cout << "\n\n++ Que quieres hacer con este valor?\n1 -> Eliminarlo <-\n2 -> Reemplazarlo <-" << endl;
                 while (!(opcionn == 1 || opcionn ==2)) {
                     cin.clear();
                     cin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -426,14 +425,12 @@ int main() {
                     cin >> opcionn;
                 }
                 if (opcionn == 1) {
-                    arbol.deleteValue(trabajando);  // Llamar a la función pública para Borrar el nodo
+                    Eliminar(&arbol, trabajando);  // Llamar a la función para eliminar el nodo
                     cout << "-> Nodo eliminado con éxito <-" << endl; // Y agrega un aviso de que se elimino
                     break; 
                 } else {
-                    arbol.deleteValue(trabajando); 
-                    //acá no agregué el break; para que pase directo a preguntar el valor que se va a agregar en el case 5
+                    Eliminar(&arbol, trabajando); // Tambien llama, pero no tiene el brak, por lo cual se agrega valor en caso 3
                 }
-                */
             }
             // Insertar valor
             case 3: { // Agregar valores al árbol
