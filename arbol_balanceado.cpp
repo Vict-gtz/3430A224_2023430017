@@ -342,6 +342,22 @@ void RotaDerechoDerecho(Arbol* a, pNodo nodo) {
 
 /////////////
 
+bool Buscar(Arbol a, int dat) {
+        if (a == nullptr) {
+            return false;  // El valor no esta en el arbol
+        }
+
+        if (a->dato == dat) {
+            return true;  // El valor si esta en el arbol
+        }
+
+        if (dat < a->dato) {
+            return Buscar(a->izquierdo, dat);  // Buscar en el subarbol izquierdo
+        } else {
+            return Buscar(a->derecho, dat);  // Buscar en el subarbol derecho
+        }
+    }
+
 void menu() {
         cout << "\n\n[ ---------- Menu ------------ ]" << endl;
         cout << "1 -> Mostrar arbol <-" << endl;
@@ -368,11 +384,11 @@ int main() {
     // Menu con diversas opciones para el usuario
     while (true) {
         int opcion = 0;
-        string empt;
 
-        //Mostrar menu
+        // Mostrar menu
         menu(); 
 
+        // Y le pide opcion al usuario
         if (!(cin >> opcion)) { 
             cin.clear(); 
             cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
@@ -381,25 +397,27 @@ int main() {
 
         // Opcion segun usuario
         switch (opcion) {
-            // Mostrar arbol
             case 1: {
+                // Mostrar arbol
+
                 cout << "++ Arbol en preorden: ";
                 //PreOrden(arbol);
-                cin >> empt; 
                 break;
             }
-            // Eliminar / Reescribir
             case 2: {
+                // Eliminar / Reescribir
+
                 int trabajando = 0;
                 int opcionn = 0;
+
                 //arbol.printInOrder(); // Muestra el árbol al usuario
 
                 // Pregunta el valor que quiere utilizar
                 cout << "++ Con que valor quieres trabajar? :";
-                /*while (true) {
+                while (true) {
                     if (cin >> trabajando) {
                         // Verifica si el valor existe en el árbol
-                        if (arbol.search(trabajando)) {
+                        if (Buscar(arbol, trabajando)) {
                             break;  // Valor correcto: continua
                         } else {
                             cout << "XX El valor no está en el árbol, intente otra vez XX: ";
@@ -409,12 +427,7 @@ int main() {
                         cin.ignore(numeric_limits<streamsize>::max(), '\n');
                         cout << "xx Ingrese un valor numérico válido xx: ";
                     }
-                }*/
-                if (!(cin >> trabajando)) { 
-                        cin.clear(); 
-                        cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
-                        continue;
-                    } 
+                }
 
                 // Pregunta qué quiere hacer con este valor
                 cout << "\n\n++ Que quieres hacer con este valor?\n1 -> Eliminarlo <-\n2 -> Reemplazarlo <-" << endl;
@@ -432,8 +445,9 @@ int main() {
                     Eliminar(&arbol, trabajando); // Tambien llama, pero no tiene el brak, por lo cual se agrega valor en caso 3
                 }
             }
-            // Insertar valor
-            case 3: { // Agregar valores al árbol
+            case 3: { 
+                // Insertar valor
+
                 int valor_nuevo = 0;
                 cout << "\n++ Valor nuevo a agregar al arbol: ";
 
@@ -450,14 +464,14 @@ int main() {
                 Insertar(&arbol, valor_nuevo); // Agrega el valor al arbol
                 break;
             }
-            //Generar grafo
             case 4: {
+                //Generar grafo
                 GenerarGrafo(arbol); 
                 cout << "Se ha creado grafo.txt" << endl;
                 break;
             }
-            // Finalizar
             case 5: {
+                // Finalizar
                 Podar(&arbol); // Muere arbol
                 cout << "Programa finalizado" << endl; 
                 return 0;
