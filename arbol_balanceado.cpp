@@ -13,13 +13,13 @@ enum {IZQUIERDO, DERECHO};
 struct Nodo {
     int dato;
     int FE;
-    Nodo* izquierdo;
-    Nodo* derecho;
-    Nodo* padre:
+    Nodo *izquierdo;
+    Nodo *derecho;
+    Nodo *padre;
 };
 
-typedef Nodo* pNodo;
-typedef Nodo* Arbol;
+typedef Nodo *pNodo;
+typedef Nodo *Arbol;
 
 void Insertar(Arbol* a, int dat);
 void Borrar(Arbol* a, int dat);
@@ -35,10 +35,10 @@ void PreOrden(Arbol, std::ofstream &fp);//
 
 // Funciones de equilibrado:
 void Equilibrar(Arbol* raiz, pNodo nodo, int, int);
-void RotaDerechaDerecha(Arbol* raiz, pNodo nodo);
-void RotaIzquierdaIzquierda(Arbol* raiz, pNodo nodo);
-void RotaDerechaIzquierda(Arbol* raiz, pNodo nodo);
-void RotaIzquierdaDerecha(Arbol* raiz, pNodo nodo);
+void RotaDerechoDerecho(Arbol* raiz, pNodo nodo);
+void Rotaizquierdoizquierdo(Arbol* raiz, pNodo nodo);
+void RotaDerechoizquierdo(Arbol* raiz, pNodo nodo);
+void RotaizquierdoDerecho(Arbol* raiz, pNodo nodo);
 
 /* Funciones auxiliares: */
 void Podar(Arbol* a);
@@ -53,70 +53,58 @@ void GenerarGrafo(Arbol);
 
 /////////////
 
-pNodo* minValueNodo(pNodo nodo) {
+Nodo* minValueNodo(Nodo* nodo) {
         Nodo* current = nodo;
-        while (current && current->izquierdo != nullptr) {
+        while (current && current->izquierdo != NULL) {
             current = current->izquierdo;
         }
         return current;
     }
 
-void Borrar(Nodo* root, int data) {
-    if (root == nullptr) {
-        return root;  
-    }
-
-    if (data < root->info) {
-        root->left = Borrar(root->left, data);  
-        } else if (data > root->info) {
-        root->right = Borrar(root->right, data);  
-            } else {
-                
-        if (root->left == nullptr) {
-            Nodo* temp = root->right;
-            delete root;
-            return temp;
-        } else if (root->right == nullptr) {
-            Nodo* temp = root->left;
-            delete root;
-            return temp;
+void PreOrden(Arbol a, std::ofstream &fp) {
+    if (a) {
+        fp << a->dato << ";\n";
+        if (a->izquierdo) {
+            fp << a->dato << "->" << a->izquierdo->dato << ";\n";
+            PreOrden(a->izquierdo, fp);
         }
-
-        Nodo* temp = minValueNodo(root->right);
-
-        root->info = temp->info;
-
-        root->right = Borrar(root->right, temp->info);
+        if (a->derecho) {
+            fp << a->dato << "->" << a->derecho->dato << ";\n";
+            PreOrden(a->derecho, fp);
+        }
     }
 }
 
-void Insertar(Arbol *a, int dat) {
-  pNodo padre = NULL;
-  pNodo actual = *a;
+void Borrar(Arbol *a, int dat) {
+    if (*a == NULL) {
+        return;  // Si el árbol está vacío, no se hace nada
+    }
 
-  while (actual != NULL && dat != actual->dato) {
-    padre = actual;
-
-    if (dat < actual->dato)
-      actual = actual->izquierdo;
-    else if (dat > actual->dato)
-      actual = actual->derecho;
-  }
-
-  if (actual != NULL)
-    return;
-
-  if (padre == NULL) {
-    *a = new Nodo{dat, 0, NULL, NULL, NULL};
-  } else if (dat < padre->dato) {
-    actual = new Nodo{dat, 0, NULL, NULL, padre};
-    padre->izquierdo = actual;
-    Equilibrar(a, padre, IZQUIERDO, TRUE);
-  } else if (dat > padre->dato) {
-    actual = new Nodo{dat, 0, NULL, NULL, padre};
-    padre->derecho = actual;
-    Equilibrar(a, padre, DERECHO, TRUE);
-  }
+    if (dat < (*a)->dato) {
+        // Se busca en subarbol izquierdo por tamaño de dato
+        Borrar(&(*a)->izquierdo, dat);
+    } else if (dat > (*a)->dato) {
+        // Se busca en subarbol derecho por tamaño de dato
+        Borrar(&(*a)->derecho, dat);
+    } else {
+        // Se encontró el nodo a borrar
+        if ((*a)->izquierdo == NULL && (*a)->derecho == NULL) {
+            delete *a;  // Se elimina el nodo
+            *a = NULL;  
+        } else if ((*a)->izquierdo == NULL) {
+            pNodo temp = *a; 
+            *a = (*a)->derecho; 
+            delete temp;  
+        } else if ((*a)->derecho == NULL) {
+            pNodo temp = *a;
+            *a = (*a)->izquierdo;  
+            delete temp;
+        } else {
+            pNodo temp = minValueNodo((*a)->derecho); 
+            (*a)->dato = temp->dato;  
+            Borrar(&(*a)->derecho, temp->dato);  
+        }
+    }
 }
 
 void Equilibrar(Arbol *a, pNodo nodo, int rama, int nuevo) {
@@ -141,15 +129,15 @@ void Equilibrar(Arbol *a, pNodo nodo, int rama, int nuevo) {
       salir = TRUE;
     else if (nodo->FE == -2) {
       if (nodo->izquierdo->FE == 1)
-        RotaIzquierdaDerecha(a, nodo);
+        RotaizquierdoDerecho(a, nodo);
       else
-        RotaIzquierdaIzquierda(a, nodo);
+        Rotaizquierdoizquierdo(a, nodo);
       salir = TRUE;
     } else if (nodo->FE == 2) {
       if (nodo->derecho->FE == -1)
-        RotaDerechaIzquierda(a, nodo);
+        RotaDerechoizquierdo(a, nodo);
       else
-        RotaDerechaDerecha(a, nodo);
+        RotaDerechoDerecho(a, nodo);
       salir = TRUE;
     }
 
@@ -190,7 +178,7 @@ void Podar(Arbol* a) {
     }
 }
 
-void Insertar(Arbol* a, int dat) {
+void Insertar(Arbol *a, int dat) {
     pNodo padre = NULL;
     pNodo actual = *a;
 
@@ -219,54 +207,7 @@ void Insertar(Arbol* a, int dat) {
     }
 }
 
-void Equilibrar(Arbol* a, pNodo nodo, int rama, int nuevo) {
-    int salir = FALSE;
-
-    while (nodo && !salir) {
-        if (nuevo){
-            if (rama == IZQUIERDO){
-                nodo->FE -= 1;
-            } else {
-                nodo->FE += 1;
-            }
-        }
-        else{
-            if (rama == IZQUIERDO){
-                nodo->FE += 1;
-            } 
-            else {
-                nodo->FE -= 1;
-            }
-        }
-
-        if (nodo->FE == 0)
-            salir = TRUE;
-        else if (nodo->FE == -2) {
-            if (nodo->izquierdo->FE == 1)
-                RotaIzquierdaDerecha(a, nodo);
-            else
-                RotaIzquierdaIzquierda(a, nodo);
-            salir = TRUE;
-        } else if (nodo->FE == 2) {
-            if (nodo->derecho->FE == -1)
-                RotaDerechaIzquierda(a, nodo);
-            else
-                RotaDerechaDerecha(a, nodo);
-            salir = TRUE;
-        }
-
-        if (nodo->padre) {
-            if (nodo->padre->derecho == nodo) {
-                rama = DERECHO;
-            } else {
-                rama = IZQUIERDO;
-            }
-        }
-        nodo = nodo->padre;
-    }
-}
-
-void RotaIzquierdaDerecha(Arbol* raiz, pNodo nodo) {
+void RotaizquierdoDerecho(Arbol* raiz, pNodo nodo) {
     pNodo Padre = nodo->padre;
     pNodo P = nodo;
     pNodo Q = P->izquierdo;
@@ -304,7 +245,7 @@ void RotaIzquierdaDerecha(Arbol* raiz, pNodo nodo) {
     R->FE = 0;
 }
 
-void RotaDerechaIzquierda(Arbol* a, pNodo nodo) {
+void RotaDerechoizquierdo(Arbol* a, pNodo nodo) {
     pNodo Padre = nodo->padre;
     pNodo P = nodo;
     pNodo Q = P->derecho;
@@ -340,7 +281,7 @@ void RotaDerechaIzquierda(Arbol* a, pNodo nodo) {
     R->FE = 0;
 }
 
-void RotaIzquierdaIzquierda(Arbol* a, pNodo nodo) {
+void Rotaizquierdoizquierdo(Arbol* a, pNodo nodo) {
     pNodo Padre = nodo->padre;
     pNodo P = nodo;
     pNodo Q = P->izquierdo;
@@ -368,7 +309,7 @@ void RotaIzquierdaIzquierda(Arbol* a, pNodo nodo) {
     Q->FE = 0;
 }
 
-void RotaDerechaDerecha(Arbol* a, pNodo nodo) {
+void RotaDerechoDerecho(Arbol* a, pNodo nodo) {
     pNodo Padre = nodo->padre;
     pNodo P = nodo;
     pNodo Q = P->derecho;
@@ -399,39 +340,12 @@ void RotaDerechaDerecha(Arbol* a, pNodo nodo) {
     Q->FE = 0;
 }
 
-void PreOrden(Arbol a, std::ofstream &fp) {
-    if (a) {
-        fp << a->dato << ";\n";
-        if (a->izquierdo) {
-            fp << a->dato << "->" << a->izquierdo->dato << ";\n";
-            PreOrden(a->izquierdo, fp);
-        }
-        if (a->derecho) {
-            fp << a->dato << "->" << a->derecho->dato << ";\n";
-            PreOrden(a->derecho, fp);
-        }
-    }
-}
-
-void PrintPreOrden(Arbol a) {
-    if (a) {
-        cout << a->dato << " ";  
-        if (a->izquierdo) {
-            PreOrden(a->izquierdo); 
-        }
-        if (a->derecho) {
-            PreOrden(a->derecho); 
-        }
-    }
-}
-
-
 /////////////
 
 void menu() {
         cout << "\n\n[ ---------- Menu ------------ ]" << endl;
         cout << "1 -> Mostrar arbol <-" << endl;
-        cout << "2 -> Buscar nodo <-" << endl; // Eliminar o reescribir
+        cout << "2 -> Buscar nodo <-" << endl; // Borrar o reescribir
         cout << "3 -> Insertar valor al arbol <-" << endl;
         cout << "4 -> Generar grafo <-" << endl;
         cout << "5 -> Finalizar <-" << endl;
@@ -475,11 +389,11 @@ int main() {
             // Mostrar arbol
             case 1: {
                 cout << "++ Arbol en preorden: ";
-                PrintPreOrden(arbol);
+                //PreOrden(arbol);
                 cin >> empt; 
                 break;
             }
-            // Eliminar / Reescribir
+            // Borrar / Reescribir
             case 2: {
                 /*
                 int trabajando = 0;
@@ -504,7 +418,7 @@ int main() {
                 }
 
                 // Pregunta qué quiere hacer con este valor
-                cout << "\n\n++ Que quieres hacer con este valor?\n1 -> Eliminarlo <-\n2 -> Reemplazarlo <-" << endl;
+                cout << "\n\n++ Que quieres hacer con este valor?\n1 -> Borrarlo <-\n2 -> Reemplazarlo <-" << endl;
                 while (!(opcionn == 1 || opcionn ==2)) {
                     cin.clear();
                     cin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -512,7 +426,7 @@ int main() {
                     cin >> opcionn;
                 }
                 if (opcionn == 1) {
-                    arbol.deleteValue(trabajando);  // Llamar a la función pública para eliminar el nodo
+                    arbol.deleteValue(trabajando);  // Llamar a la función pública para Borrar el nodo
                     cout << "-> Nodo eliminado con éxito <-" << endl; // Y agrega un aviso de que se elimino
                     break; 
                 } else {
