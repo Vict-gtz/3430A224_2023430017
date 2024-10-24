@@ -21,22 +21,17 @@ struct Nodo {
 typedef Nodo* pNodo;
 typedef Nodo* Arbol;
 
-/* Insertar en arbol ordenado: */
 void Insertar(Arbol* a, int dat);
-/* Borrar un elemento: */
 void Borrar(Arbol* a, int dat);
-/* Funcion de busqueda: */
-int Buscar(Arbol a, int dat);
-/* Comprobar si es un nodo hoja: */
-int EsHoja(pNodo r);
-/* Contar numero de nodos: */
-int NumeroNodos(Arbol a, int* c);
-/* Calcular la altura de un arbol: */
-int AlturaArbol(Arbol a, int* altura);
-/* Calcular altura de un dato: */
-int Altura(Arbol a, int dat);
-/* Generar salida para Graphiz */
-void PreOrden(Arbol, std::ofstream &fp);
+
+/*
+int Buscar(Arbol a, int dat);//
+int EsHoja(pNodo r);//
+int NumeroNodos(Arbol a, int* c);//
+int AlturaArbol(Arbol a, int* altura);//
+int Altura(Arbol a, int dat);//
+void PreOrden(Arbol, std::ofstream &fp);//
+*/
 
 // Funciones de equilibrado:
 void Equilibrar(Arbol* raiz, pNodo nodo, int, int);
@@ -47,19 +42,133 @@ void RotaIzquierdaDerecha(Arbol* raiz, pNodo nodo);
 
 /* Funciones auxiliares: */
 void Podar(Arbol* a);
-void auxContador(Arbol a, int*);
-void auxAltura(Arbol a, int, int*);
 
-void MenuPrincipal();
+/*
+void auxContador(Arbol a, int*);//
+void auxAltura(Arbol a, int, int*);//
+*/
+
+void menu();
 void GenerarGrafo(Arbol);
 
 /////////////
+
+pNodo* minValueNodo(pNodo nodo) {
+        Nodo* current = nodo;
+        while (current && current->izquierdo != nullptr) {
+            current = current->izquierdo;
+        }
+        return current;
+    }
+
+void Borrar(Nodo* root, int data) {
+    if (root == nullptr) {
+        return root;  
+    }
+
+    if (data < root->info) {
+        root->left = Borrar(root->left, data);  
+        } else if (data > root->info) {
+        root->right = Borrar(root->right, data);  
+            } else {
+                
+        if (root->left == nullptr) {
+            Nodo* temp = root->right;
+            delete root;
+            return temp;
+        } else if (root->right == nullptr) {
+            Nodo* temp = root->left;
+            delete root;
+            return temp;
+        }
+
+        Nodo* temp = minValueNodo(root->right);
+
+        root->info = temp->info;
+
+        root->right = Borrar(root->right, temp->info);
+    }
+}
+
+void Insertar(Arbol *a, int dat) {
+  pNodo padre = NULL;
+  pNodo actual = *a;
+
+  while (actual != NULL && dat != actual->dato) {
+    padre = actual;
+
+    if (dat < actual->dato)
+      actual = actual->izquierdo;
+    else if (dat > actual->dato)
+      actual = actual->derecho;
+  }
+
+  if (actual != NULL)
+    return;
+
+  if (padre == NULL) {
+    *a = new Nodo{dat, 0, NULL, NULL, NULL};
+  } else if (dat < padre->dato) {
+    actual = new Nodo{dat, 0, NULL, NULL, padre};
+    padre->izquierdo = actual;
+    Equilibrar(a, padre, IZQUIERDO, TRUE);
+  } else if (dat > padre->dato) {
+    actual = new Nodo{dat, 0, NULL, NULL, padre};
+    padre->derecho = actual;
+    Equilibrar(a, padre, DERECHO, TRUE);
+  }
+}
+
+void Equilibrar(Arbol *a, pNodo nodo, int rama, int nuevo) {
+  int salir = FALSE;
+
+  while (nodo && !salir) {
+    if (nuevo) {
+      if (rama == IZQUIERDO) {
+        nodo->FE -= 1;
+      } else {
+        nodo->FE += 1;
+      }
+    } else {
+      if (rama == IZQUIERDO) {
+        nodo->FE += 1;
+      } else {
+        nodo->FE -= 1;
+      }
+    }
+
+    if (nodo->FE == 0)
+      salir = TRUE;
+    else if (nodo->FE == -2) {
+      if (nodo->izquierdo->FE == 1)
+        RotaIzquierdaDerecha(a, nodo);
+      else
+        RotaIzquierdaIzquierda(a, nodo);
+      salir = TRUE;
+    } else if (nodo->FE == 2) {
+      if (nodo->derecho->FE == -1)
+        RotaDerechaIzquierda(a, nodo);
+      else
+        RotaDerechaDerecha(a, nodo);
+      salir = TRUE;
+    }
+
+    if (nodo->padre) {
+      if (nodo->padre->derecho == nodo) {
+        rama = DERECHO;
+      } else {
+        rama = IZQUIERDO;
+      }
+    }
+    nodo = nodo->padre;
+  }
+}
 
 void GenerarGrafo(Arbol ArbolInt) {
     std::ofstream fp("grafo.txt");
 
     fp << "digraph G {\n";
-    fp << "node [style=filled fillcolor=yellow];\n";
+    fp << "nodo [style=filled fillcolor=yellow];\n";
 
     fp << "nullraiz [shape=point];\n";
     fp << "nullraiz->" << ArbolInt->dato << " [label=" << ArbolInt->FE << "];\n";
@@ -304,11 +413,24 @@ void PreOrden(Arbol a, std::ofstream &fp) {
     }
 }
 
+void PrintPreOrden(Arbol a) {
+    if (a) {
+        cout << a->dato << " ";  
+        if (a->izquierdo) {
+            PreOrden(a->izquierdo); 
+        }
+        if (a->derecho) {
+            PreOrden(a->derecho); 
+        }
+    }
+}
+
+
 /////////////
 
 void menu() {
         cout << "\n\n[ ---------- Menu ------------ ]" << endl;
-        cout << "1 -> Mostrar arbol en preorden <-" << endl;
+        cout << "1 -> Mostrar arbol <-" << endl;
         cout << "2 -> Buscar nodo <-" << endl; // Eliminar o reescribir
         cout << "3 -> Insertar valor al arbol <-" << endl;
         cout << "4 -> Generar grafo <-" << endl;
@@ -318,20 +440,20 @@ void menu() {
 }
 
 int main() {
-    Arbol arbol;
+    Arbol arbol = NULL;
 
     // Insertar numeros en el arbol usando el metodo insert
-    arbol.insert(120);
-    arbol.insert(87);
-    arbol.insert(140);
-    arbol.insert(43);
-    arbol.insert(99);
-    arbol.insert(130);
-    arbol.insert(22);
-    arbol.insert(65);
-    arbol.insert(93);
-    arbol.insert(135);
-    arbol.insert(56);
+    Insertar(&arbol, 120);
+    Insertar(&arbol, 87);
+    Insertar(&arbol, 140);
+    Insertar(&arbol, 43);
+    Insertar(&arbol, 99);
+    Insertar(&arbol, 130);
+    Insertar(&arbol, 22);
+    Insertar(&arbol, 65);
+    Insertar(&arbol, 93);
+    Insertar(&arbol, 135);
+    Insertar(&arbol, 56);
 
 
     // Menu con diversas opciones para el usuario
@@ -350,14 +472,16 @@ int main() {
 
         // Opcion segun usuario
         switch (opcion) {
+            // Mostrar arbol
             case 1: {
-                // Imprimir el arbol en preorden
-                cout << "++ Recorrido en preorden: " << endl;
-                arbol.PreOrden();
-                cin >> empt; // Esto es para que no salga el menu antes de siquiera poder leer lo que entrega la opcion
+                cout << "++ Arbol en preorden: ";
+                PrintPreOrden(arbol);
+                cin >> empt; 
                 break;
             }
+            // Eliminar / Reescribir
             case 2: {
+                /*
                 int trabajando = 0;
                 int opcionn = 0;
                 arbol.printInOrder(); // Muestra el árbol al usuario
@@ -395,7 +519,9 @@ int main() {
                     arbol.deleteValue(trabajando); 
                     //acá no agregué el break; para que pase directo a preguntar el valor que se va a agregar en el case 5
                 }
+                */
             }
+            // Insertar valor
             case 3: { // Agregar valores al árbol
                 int valor_nuevo = 0;
                 cout << "\n++ Valor nuevo a agregar al arbol: ";
@@ -410,16 +536,19 @@ int main() {
                     }
                 }
 
-                arbol.insert(valor_nuevo); // Agrega el valor al arbol
+                Insertar(&arbol, valor_nuevo); // Agrega el valor al arbol
                 break;
             }
+            //Generar grafo
             case 4: {
-                arbol.GenerarGrafo(); // Grafo
-                cout << "Se ha creado grafo.txt" << endl; // Da aviso
+                GenerarGrafo(arbol); 
+                cout << "Se ha creado grafo.txt" << endl;
                 break;
             }
+            // Finalizar
             case 5: {
-                cout << "Programa finalizado" << endl; // Finaliza programa
+                Podar(&arbol); // Muere arbol
+                cout << "Programa finalizado" << endl; 
                 return 0;
             }
         }
