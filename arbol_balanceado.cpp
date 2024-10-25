@@ -146,49 +146,51 @@ void PreOrden(Arbol a, std::ofstream &fp) {
     }
 }
 
-void Equilibrar(Arbol *a, pNodo nodo, int rama, int nuevo) {
-  int salir = FALSE;
+void Equilibrar(Arbol* a, pNodo nodo, int rama, int nuevo) {
+    int salir = FALSE;
 
-  while (nodo && !salir) {
-    if (nuevo) {
-      if (rama == IZQUIERDO) {
-        nodo->FE -= 1;
-      } else {
-        nodo->FE += 1;
-      }
-    } else {
-      if (rama == IZQUIERDO) {
-        nodo->FE += 1;
-      } else {
-        nodo->FE -= 1;
-      }
-    }
+    while (nodo && !salir) {
+        if (nuevo){
+            if (rama == IZQUIERDO){
+                nodo->FE -= 1;
+            } else {
+                nodo->FE += 1;
+            }
+        }
+        else{
+            if (rama == IZQUIERDO){
+                nodo->FE += 1;
+            } 
+            else {
+                nodo->FE -= 1;
+            }
+        }
 
-    if (nodo->FE == 0)
-      salir = TRUE;
-    else if (nodo->FE == -2) {
-      if (nodo->izquierdo->FE == 1)
-        RotaizquierdoDerecho(a, nodo);
-      else
-        Rotaizquierdoizquierdo(a, nodo);
-      salir = TRUE;
-    } else if (nodo->FE == 2) {
-      if (nodo->derecho->FE == -1)
-        RotaDerechoizquierdo(a, nodo);
-      else
-        RotaDerechoDerecho(a, nodo);
-      salir = TRUE;
-    }
+        if (nodo->FE == 0)
+            salir = TRUE;
+        else if (nodo->FE == -2) {
+            if (nodo->izquierdo->FE == 1)
+                RotaizquierdoDerecho(a, nodo);
+            else
+                Rotaizquierdoizquierdo(a, nodo);
+            salir = TRUE;
+        } else if (nodo->FE == 2) {
+            if (nodo->derecho->FE == -1)
+                RotaDerechoizquierdo(a, nodo);
+            else
+                RotaDerechoDerecho(a, nodo);
+            salir = TRUE;
+        }
 
-    if (nodo->padre) {
-      if (nodo->padre->derecho == nodo) {
-        rama = DERECHO;
-      } else {
-        rama = IZQUIERDO;
-      }
+        if (nodo->padre) {
+            if (nodo->padre->derecho == nodo) {
+                rama = DERECHO;
+            } else {
+                rama = IZQUIERDO;
+            }
+        }
+        nodo = nodo->padre;
     }
-    nodo = nodo->padre;
-  }
 }
 
 void RotaizquierdoDerecho(Arbol* raiz, pNodo nodo) {
