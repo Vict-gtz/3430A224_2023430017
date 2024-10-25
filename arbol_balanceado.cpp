@@ -23,15 +23,7 @@ typedef Nodo *Arbol;
 
 void Insertar(Arbol* a, int dat);
 void Eliminar(Arbol* a, int dat);
-
-/*
-int Buscar(Arbol a, int dat);//
-int EsHoja(pNodo r);//
-int NumeroNodos(Arbol a, int* c);//
-int AlturaArbol(Arbol a, int* altura);//
-int Altura(Arbol a, int dat);//
-void PreOrden(Arbol, std::ofstream &fp);//
-*/
+bool Buscar(Arbol a, int dat);
 
 // Funciones de equilibrado:
 void Equilibrar(Arbol* raiz, pNodo nodo, int, int);
@@ -42,11 +34,6 @@ void RotaizquierdoDerecho(Arbol* raiz, pNodo nodo);
 
 /* Funciones auxiliares: */
 void Podar(Arbol* a);
-
-/*
-void auxContador(Arbol a, int*);//
-void auxAltura(Arbol a, int, int*);//
-*/
 
 void menu();
 void GenerarGrafo(Arbol);
@@ -72,6 +59,14 @@ void PreOrden(Arbol a, std::ofstream &fp) {
             fp << a->dato << "->" << a->derecho->dato << ";\n";
             PreOrden(a->derecho, fp);
         }
+    }
+}
+
+void MostrarArbol(Arbol a) {
+    if (a) {
+        cout << a->dato << " ";
+        MostrarArbol(a->izquierdo);
+        MostrarArbol(a->derecho);
     }
 }
 
@@ -400,8 +395,8 @@ int main() {
             case 1: {
                 // Mostrar arbol
 
-                cout << "++ Arbol en preorden: ";
-                //PreOrden(arbol);
+                cout << "++ Valores del arbol: ";
+                MostrarArbol(arbol);
                 break;
             }
             case 2: {
@@ -413,7 +408,9 @@ int main() {
                 //arbol.printInOrder(); // Muestra el árbol al usuario
 
                 // Pregunta el valor que quiere utilizar
-                cout << "++ Con que valor quieres trabajar? :";
+                cout << "\n++ Con que valor quieres trabajar? [";
+                MostrarArbol(arbol);
+                cout << "] :";
                 while (true) {
                     if (cin >> trabajando) {
                         // Verifica si el valor existe en el árbol
