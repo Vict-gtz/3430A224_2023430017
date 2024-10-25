@@ -10,6 +10,7 @@ using namespace std;
 
 enum {IZQUIERDO, DERECHO};
 
+
 struct Nodo {
     int dato;
     int FE;
@@ -21,52 +22,62 @@ struct Nodo {
 typedef Nodo *pNodo;
 typedef Nodo *Arbol;
 
+
+/* Funciones de edicion */
 void Insertar(Arbol* a, int dat);
 void Eliminar(Arbol* a, int dat);
 bool Buscar(Arbol a, int dat);
 
-// Funciones de equilibrado:
+/* Funciones de equilibrado */
+void PreOrden(Arbol a, std::ofstream &fp);
 void Equilibrar(Arbol* raiz, pNodo nodo, int, int);
 void RotaDerechoDerecho(Arbol* raiz, pNodo nodo);
 void Rotaizquierdoizquierdo(Arbol* raiz, pNodo nodo);
 void RotaDerechoizquierdo(Arbol* raiz, pNodo nodo);
 void RotaizquierdoDerecho(Arbol* raiz, pNodo nodo);
 
-/* Funciones auxiliares: */
+/* Funciones auxiliares */
 void Podar(Arbol* a);
-
 void menu();
 void GenerarGrafo(Arbol);
-
-/////////////
+void MostrarArbol(Arbol a);
 
 Nodo* minValueNodo(Nodo* nodo) {
-        Nodo* current = nodo;
-        while (current && current->izquierdo != NULL) {
-            current = current->izquierdo;
-        }
-        return current;
+    Nodo* current = nodo;
+    while (current && current->izquierdo != NULL) {
+        current = current->izquierdo;
     }
-
-void PreOrden(Arbol a, std::ofstream &fp) {
-    if (a) {
-        fp << a->dato << ";\n";
-        if (a->izquierdo) {
-            fp << a->dato << "->" << a->izquierdo->dato << ";\n";
-            PreOrden(a->izquierdo, fp);
-        }
-        if (a->derecho) {
-            fp << a->dato << "->" << a->derecho->dato << ";\n";
-            PreOrden(a->derecho, fp);
-        }
-    }
+    return current;
 }
 
-void MostrarArbol(Arbol a) {
-    if (a) {
-        cout << a->dato << " ";
-        MostrarArbol(a->izquierdo);
-        MostrarArbol(a->derecho);
+
+/* Funciones de edicion */
+void Insertar(Arbol *a, int dat) {
+    pNodo padre = NULL;
+    pNodo actual = *a;
+
+    while (actual != NULL && dat != actual->dato) {
+        padre = actual;
+
+        if (dat < actual->dato)
+            actual = actual->izquierdo;
+        else if (dat > actual->dato)
+            actual = actual->derecho;
+    }
+
+    if (actual != NULL)
+        return;
+
+    if (padre == NULL) {
+        *a = new Nodo{dat, 0, NULL, NULL, NULL};
+    } else if (dat < padre->dato) {
+        actual = new Nodo{dat, 0, NULL, NULL, padre};
+        padre->izquierdo = actual;
+        Equilibrar(a, padre, IZQUIERDO, TRUE);
+    } else if (dat > padre->dato) {
+        actual = new Nodo{dat, 0, NULL, NULL, padre};
+        padre->derecho = actual;
+        Equilibrar(a, padre, DERECHO, TRUE);
     }
 }
 
@@ -98,6 +109,39 @@ void Eliminar(Arbol *a, int dat) {
             pNodo temp = minValueNodo((*a)->derecho); 
             (*a)->dato = temp->dato;  
             Eliminar(&(*a)->derecho, temp->dato);  
+        }
+    }
+}
+
+bool Buscar(Arbol a, int dat) {
+    if (a == nullptr) {
+        return false;  // El valor no esta en el arbol
+    }
+
+    if (a->dato == dat) {
+        return true;  // El valor si esta en el arbol
+    }
+
+    if (dat < a->dato) {
+        return Buscar(a->izquierdo, dat);  // Buscar en el subarbol izquierdo
+    } else {
+        return Buscar(a->derecho, dat);  // Buscar en el subarbol derecho
+    }
+}
+
+
+/* Funciones de equilibrado */
+
+void PreOrden(Arbol a, std::ofstream &fp) {
+    if (a) {
+        fp << a->dato << ";\n";
+        if (a->izquierdo) {
+            fp << a->dato << "->" << a->izquierdo->dato << ";\n";
+            PreOrden(a->izquierdo, fp);
+        }
+        if (a->derecho) {
+            fp << a->dato << "->" << a->derecho->dato << ";\n";
+            PreOrden(a->derecho, fp);
         }
     }
 }
@@ -145,61 +189,6 @@ void Equilibrar(Arbol *a, pNodo nodo, int rama, int nuevo) {
     }
     nodo = nodo->padre;
   }
-}
-
-void GenerarGrafo(Arbol ArbolInt) {
-    std::ofstream fp("grafo.txt");
-
-    fp << "digraph G {\n";
-    fp << "nodo [style=filled fillcolor=yellow];\n";
-
-    fp << "nullraiz [shape=point];\n";
-    fp << "nullraiz->" << ArbolInt->dato << " [label=" << ArbolInt->FE << "];\n";
-    PreOrden(ArbolInt, fp);
-
-    fp << "}\n";
-    fp.close();
-
-    system("dot -Tpng -ografo.png grafo.txt");
-    system("eog grafo.png &");
-}
-
-void Podar(Arbol* a) {
-    if (*a) {
-        Podar(&(*a)->izquierdo);
-        Podar(&(*a)->derecho);
-        free(*a);
-        *a = NULL;
-    }
-}
-
-void Insertar(Arbol *a, int dat) {
-    pNodo padre = NULL;
-    pNodo actual = *a;
-
-    while (actual != NULL && dat != actual->dato) {
-        padre = actual;
-
-        if (dat < actual->dato)
-            actual = actual->izquierdo;
-        else if (dat > actual->dato)
-            actual = actual->derecho;
-    }
-
-    if (actual != NULL)
-        return;
-
-    if (padre == NULL) {
-        *a = new Nodo{dat, 0, NULL, NULL, NULL};
-    } else if (dat < padre->dato) {
-        actual = new Nodo{dat, 0, NULL, NULL, padre};
-        padre->izquierdo = actual;
-        Equilibrar(a, padre, IZQUIERDO, TRUE);
-    } else if (dat > padre->dato) {
-        actual = new Nodo{dat, 0, NULL, NULL, padre};
-        padre->derecho = actual;
-        Equilibrar(a, padre, DERECHO, TRUE);
-    }
 }
 
 void RotaizquierdoDerecho(Arbol* raiz, pNodo nodo) {
@@ -335,23 +324,17 @@ void RotaDerechoDerecho(Arbol* a, pNodo nodo) {
     Q->FE = 0;
 }
 
-/////////////
 
-bool Buscar(Arbol a, int dat) {
-        if (a == nullptr) {
-            return false;  // El valor no esta en el arbol
-        }
+/* Funciones auxiliares */
 
-        if (a->dato == dat) {
-            return true;  // El valor si esta en el arbol
-        }
-
-        if (dat < a->dato) {
-            return Buscar(a->izquierdo, dat);  // Buscar en el subarbol izquierdo
-        } else {
-            return Buscar(a->derecho, dat);  // Buscar en el subarbol derecho
-        }
+void Podar(Arbol* a) {
+    if (*a) {
+        Podar(&(*a)->izquierdo);
+        Podar(&(*a)->derecho);
+        free(*a);
+        *a = NULL;
     }
+}
 
 void menu() {
         cout << "\n\n[ ---------- Menu ------------ ]" << endl;
@@ -364,10 +347,38 @@ void menu() {
         cout << "\nxx Ingrese una de las opciones entregadas xx : ";
 }
 
+void GenerarGrafo(Arbol ArbolInt) {
+    std::ofstream fp("grafo.txt");
+
+    fp << "digraph G {\n";
+    fp << "nodo [style=filled fillcolor=yellow];\n";
+
+    fp << "nullraiz [shape=point];\n";
+    fp << "nullraiz->" << ArbolInt->dato << " [label=" << ArbolInt->FE << "];\n";
+    PreOrden(ArbolInt, fp);
+
+    fp << "}\n";
+    fp.close();
+
+    system("dot -Tpng -ografo.png grafo.txt");
+    system("eog grafo.png &");
+}
+
+void MostrarArbol(Arbol a) {
+    if (a) {
+        cout << a->dato << " ";
+        MostrarArbol(a->izquierdo);
+        MostrarArbol(a->derecho);
+    }
+}
+
+
+/* Corre el codigo */
+
 int main() {
     Arbol arbol = NULL;
 
-    // Insertar numeros en el arbol usando el metodo insert
+    // Insertar numeros en el arbol usando metodo Insertar
     Insertar(&arbol, 60);
     Insertar(&arbol, 40);
     Insertar(&arbol, 90);
@@ -383,7 +394,7 @@ int main() {
         // Mostrar menu
         menu(); 
 
-        // Y le pide opcion al usuario
+        // Le pide opcion al usuario
         if (!(cin >> opcion)) { 
             cin.clear(); 
             cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
@@ -401,16 +412,14 @@ int main() {
             }
             case 2: {
                 // Eliminar / Reescribir
-
                 int trabajando = 0;
                 int opcionn = 0;
-
-                //arbol.printInOrder(); // Muestra el árbol al usuario
 
                 // Pregunta el valor que quiere utilizar
                 cout << "\n++ Con que valor quieres trabajar? [";
                 MostrarArbol(arbol);
                 cout << "] :";
+
                 while (true) {
                     if (cin >> trabajando) {
                         // Verifica si el valor existe en el árbol
@@ -428,12 +437,14 @@ int main() {
 
                 // Pregunta qué quiere hacer con este valor
                 cout << "\n\n++ Que quieres hacer con este valor?\n1 -> Eliminarlo <-\n2 -> Reemplazarlo <-" << endl;
+
                 while (!(opcionn == 1 || opcionn ==2)) {
                     cin.clear();
                     cin.ignore(numeric_limits<streamsize>::max(), '\n');
                     cout << "[1 o 2]: ";
                     cin >> opcionn;
                 }
+
                 if (opcionn == 1) {
                     Eliminar(&arbol, trabajando);  // Llamar a la función para eliminar el nodo
                     cout << "-> Nodo eliminado con éxito <-" << endl; // Y agrega un aviso de que se elimino
@@ -444,8 +455,8 @@ int main() {
             }
             case 3: { 
                 // Insertar valor
-
                 int valor_nuevo = 0;
+
                 cout << "\n++ Valor nuevo a agregar al arbol: ";
 
                 while (true) {
@@ -463,12 +474,14 @@ int main() {
             }
             case 4: {
                 //Generar grafo
+                
                 GenerarGrafo(arbol); 
                 cout << "Se ha creado grafo.txt" << endl;
                 break;
             }
             case 5: {
                 // Finalizar
+
                 Podar(&arbol); // Muere arbol
                 cout << "Programa finalizado" << endl; 
                 return 0;
